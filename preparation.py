@@ -60,9 +60,24 @@ def generateInstanceIds(img:np.array):
     return instance_ids
 
 
-if __name__ == "__main__":
-    start = time.time()
+from multiprocessing import Process
+
+def target():
     img = np.array(Image.open('creek_00001.png'))
     img = generateInstanceIds(img)
+
+if __name__ == "__main__":
+    start = time.time()
+    processes = list()
+    n_proc = 2
+
+    for i in range(n_proc):
+        proc = Process(target=target)
+        proc.start()
+        processes.append(proc)
+        
+    for proc in processes:
+        proc.join()
+
     end = time.time()
     print(f"TOOK {end-start} SECONDS!")
