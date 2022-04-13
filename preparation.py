@@ -62,9 +62,10 @@ def generateInstanceIds(img:np.array):
 
 from multiprocessing import Process
 
-def target():
-    img = np.array(Image.open('creek_00001.png'))
+def target(path):
+    img = np.array(Image.open(path))
     img = generateInstanceIds(img)
+
 
 if __name__ == "__main__":
     start = time.time()
@@ -72,7 +73,7 @@ if __name__ == "__main__":
     n_proc = 2
 
     for i in range(n_proc):
-        proc = Process(target=target)
+        proc = Process(target=target, args=['creek_00001.png'])
         proc.start()
         processes.append(proc)
         
