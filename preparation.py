@@ -1,8 +1,13 @@
-import numpy as np
+from tqdm import tqdm
 from PIL import Image
 from labels import color2labels
 from collections import Counter
+from multiprocessing import Process
 import time
+import sys
+import pathlib
+import numpy as np
+
 
 def generateInstanceIds(img:np.array):
 
@@ -59,23 +64,40 @@ def generateInstanceIds(img:np.array):
             
     return instance_ids
 
-
-from multiprocessing import Process
-
-def target(path):
-    img = np.array(Image.open(path))
-    img = generateInstanceIds(img)
-
+def target(imgs_list, proc_id):
+    for path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id):
+        img = np.array(Image.open(path))
+        img = generateInstanceIds(img)
 
 if __name__ == "__main__":
+
+    """
+    We'll create N processes and delegate a portion of the images to each process.
+    For example, if we have 10 images and 2 processes, this code will create two processes.
+    Each process will be responsible for 5 separate images.
+    """
+
+    args = sys.argv
+    if len(args) < 2:
+        print("Please pass directory path")
+        exit()
+
+    input_dir = args[1]
+
     start = time.time()
     processes = list()
     n_proc = 2
 
+    label_imgs = list(pathlib.Path(input_dir).glob("**/*.png"))
+    label_step = len(label_imgs)//n_proc
+    label_idx = 0
+
     for i in range(n_proc):
-        proc = Process(target=target, args=['creek_00001.png'])
+        
+        proc = Process(target=target, args=[label_imgs[label_idx:label_idx+label_step], i])
         proc.start()
         processes.append(proc)
+        label_idx += label_step
         
     for proc in processes:
         proc.join()
