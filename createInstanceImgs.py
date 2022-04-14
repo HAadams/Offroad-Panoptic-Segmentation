@@ -1,7 +1,11 @@
 """
-Use this file in conjuction with labels.py to create instance id from image labels.
-This script will save the created instance id image in teh same location as the input image.
 
+This script is used to generate instanceIds.png files for each colormap image according to the COCO format.
+The instanceIds.png images are stored using 16bit percision (each pixel can have 16bit values)
+
+This script will save the created instance id image in the same location as the input image.
+
+Use this file in conjuction with labels.py to create instance id from image labels.
 Usage Example
     python createInstanceImgs.py /content/RUGD-annotations
 
