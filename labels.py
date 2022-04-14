@@ -27,7 +27,7 @@ labels = [
     Label(  'vehicle'              ,  8      , 'void'            , 0       , True         , False         , (  255, 255, 0) ),
     Label(  'generic-object'       ,  9      , 'void'            , 0       , False        , False         , (  255, 0, 127) ),
     Label(  'asphalt'              ,  10     , 'void'            , 0       , False        , False         , (  64, 64, 64) ),
-    Label(  'gravel'               ,  11     , 'void'            , 0       , False        , False         , (  255, 129, 0) ),
+    Label(  'gravel'               ,  11     , 'void'            , 0       , False        , False         , (  255, 128, 0) ),
     Label(  'building'             ,  12     , 'void'            , 0       , False        , False         , (  255, 0, 0) ),
     Label(  'mulch'                ,  13     , 'void'            , 0       , False        , False         , (  153, 76, 0) ),
     Label(  'rock-bed'             ,  14     , 'void'            , 0       , False        , False         , (  102, 102, 0) ),
