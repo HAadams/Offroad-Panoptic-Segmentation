@@ -4,6 +4,7 @@ from labels import color2labels
 from collections import Counter
 from multiprocessing import Process
 import time
+import cv2
 import sys
 import pathlib
 import numpy as np
@@ -55,7 +56,7 @@ def generateInstanceIds(img:np.array):
                 continue
             
             color = (img[i][j][0], img[i][j][1], img[i][j][2])
-            
+
             if color not in color2labels:
                 continue
 
@@ -72,6 +73,8 @@ def target(imgs_list, proc_id):
     for path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id):
         img = np.array(Image.open(path))
         img = generateInstanceIds(img)
+        save_path = str(path).replace('.png', '') + '_instanceId.png'
+        cv2.imwrite(save_path, img)
 
 if __name__ == "__main__":
 
