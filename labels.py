@@ -15,7 +15,7 @@ Label = namedtuple( 'Label' , [
 
 
 labels = [
-    #       name                     id       category            catId     hasInstances   ignoreInEval   color
+    #       name                     id       category            catId     hasInstances   ignoreInEval        color
     Label(  'void'                 ,  0      , 'void'               , 0       , False        , True          , (  0,  0,  0) ),
     Label(  'dirt'                 ,  1      , 'drivable'           , 1       , False        , False         , (  108, 64, 20) ),
     Label(  'sand'                 ,  2      , 'drivable'           , 1       , False        , False         , (  255, 229, 204) ),
