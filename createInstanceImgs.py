@@ -81,7 +81,7 @@ def generateInstanceIds(img:np.array):
     return instance_ids
 
 def target(imgs_list, proc_id):
-    for path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id):
+    for  path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id, leave=False):
         img = np.array(Image.open(path))
         img = generateInstanceIds(img)
         save_path = str(path).replace('.png', '') + '_instanceIds.png'
@@ -107,6 +107,10 @@ if __name__ == "__main__":
     n_proc = 2
 
     label_imgs = list(pathlib.Path(input_dir).glob("**/*.png"))
+    # filter out instancesIds and panoptic images if those exist
+    label_imgs = list(filter(
+        lambda f: ("_instanceIds" not in f.name and "_panoptic" not in f.name), 
+        label_imgs))
     label_step = len(label_imgs)//n_proc
     label_idx = 0
 
