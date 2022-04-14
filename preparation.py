@@ -54,7 +54,11 @@ def generateInstanceIds(img:np.array):
             if img[i][j][0] == 0 and img[i][j][1] == 0 and img[i][j][2] == 0:
                 continue
             
-            color = (img[i][j][2], img[i][j][1], img[i][j][0])
+            color = (img[i][j][0], img[i][j][1], img[i][j][2])
+            
+            if color not in color2labels:
+                continue
+
             has_instances = color2labels[color].hasInstances
             seg_id = color2labels[color].id
 
