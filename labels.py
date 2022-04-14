@@ -44,3 +44,4 @@ labels = [
 ]
 
 color2labels = { label.color: label for label in labels }
+id2labels = { label.id: label for label in labels }

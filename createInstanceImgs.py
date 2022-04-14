@@ -24,12 +24,19 @@ def generateInstanceIds(img:np.array):
     segs_count = Counter()
 
     x, y, _ = img.shape
-    instance_ids = np.zeros(shape=(x,y))
+    instance_ids = np.zeros(shape=(x,y), dtype=np.uint16)
 
-    def floodFill(img, x, y, color, seg_id, hasInstances):
+    def floodFill(img, x, y, color, l_id, hasInstances):
 
         visited = set()
         stack = [(x,y)]
+        seg_id = l_id
+
+        if hasInstances:
+            R,G,B = color
+            seg_id = l_id*1000 #R+G*256+B*256^2
+            seg_id += segs_count[color]
+
         while stack:
             x, y = stack.pop()
             if x < 0 or x >= img.shape[0] or y < 0 or y >= img.shape[1]:
@@ -43,12 +50,7 @@ def generateInstanceIds(img:np.array):
             
             if (x, y) in visited:
                 continue
-
-            if hasInstances:
-                R,G,B = color
-                seg_id = R+G*256+B*256^2
-                seg_id += segs_count[color]
-
+            
             instance_ids[x][y] = seg_id
             visited.add((x, y))
             img[x][y] = 0
@@ -82,7 +84,7 @@ def target(imgs_list, proc_id):
     for path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id):
         img = np.array(Image.open(path))
         img = generateInstanceIds(img)
-        save_path = str(path).replace('.png', '') + '_instanceId.png'
+        save_path = str(path).replace('.png', '') + '_instanceIds.png'
         cv2.imwrite(save_path, img)
 
 if __name__ == "__main__":
