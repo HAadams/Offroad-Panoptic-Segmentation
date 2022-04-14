@@ -1,3 +1,12 @@
+"""
+Use this file in conjuction with labels.py to create instance id from image labels.
+This script will save the created instance id image in teh same location as the input image.
+
+Usage Example
+    python createInstanceImgs.py /content/RUGD-annotations
+
+"""
+
 from tqdm.auto import tqdm
 from PIL import Image
 from labels import color2labels
