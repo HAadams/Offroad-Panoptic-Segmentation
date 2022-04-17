@@ -83,13 +83,13 @@ def generatePanopticImages(dataPath):
             isCrowd = 0
             categoryId = labelInfo.id
 
-            mask = originalFormat == segmentId
-            segmentation = list()
-            for i in range(mask.shape[0]):
-                for j in range(mask.shape[1]):
-                    if mask[i][j]:
-                        segmentation.append(i)
-                        segmentation.append(j)
+            # mask = originalFormat == segmentId
+            # segmentation = list()
+            # for i in range(mask.shape[0]):
+            #     for j in range(mask.shape[1]):
+            #         if mask[i][j]:
+            #             segmentation.append(i)
+            #             segmentation.append(j)
 
             pan_format[mask] = color
 
@@ -111,7 +111,7 @@ def generatePanopticImages(dataPath):
                                 "area": int(area),
                                 "bbox": bbox,
                                 "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html
-                                "segmentation": segmentation, # [x1, y1, x2, y2, ... , xn, yn] for each point in mask
+                                # "segmentation": segmentation, # [x1, y1, x2, y2, ... , xn, yn] for each point in mask
                                 "iscrowd": isCrowd})
 
         annotations.append({'image_id': imageId,
