@@ -30,7 +30,7 @@ def generateInstanceIds(img:np.array):
     x, y, _ = img.shape
     instance_ids = np.zeros(shape=(x,y), dtype=np.uint16)
 
-    def floodFill(img, x, y, color, l_id, hasInstances):
+    def floodFill(x, y, color, l_id, hasInstances):
 
         visited = set()
         stack = [(x,y)]
@@ -67,6 +67,7 @@ def generateInstanceIds(img:np.array):
     for i in range(x):
         for j in range(y):
 
+            # skip marked/visited pixels
             if img[i][j][0] == 0 and img[i][j][1] == 0 and img[i][j][2] == 0:
                 continue
             
@@ -77,18 +78,23 @@ def generateInstanceIds(img:np.array):
 
             has_instances = color2labels[color].hasInstances
             seg_id = color2labels[color].id
+            
+            # mark all pixels of this single instance as visited and fill the instanceIds
+            floodFill(i, j, color, seg_id, has_instances)
 
-            floodFill(img, i, j, color, seg_id, has_instances)
-
+            # each instance of the same class (color) should be differentiated 
             segs_count[color] += 1
             
     return instance_ids
 
-def target(imgs_list, proc_id):
+def target(imgs_list, proc_id, instance_imgs):
     for  path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id, leave=False):
+        save_path = str(path).replace('.png', '') + '_instanceIds.png'
+        # instanceIds already exists
+        if save_path in instance_imgs:
+            continue
         img = np.array(Image.open(path))
         img = generateInstanceIds(img)
-        save_path = str(path).replace('.png', '') + '_instanceIds.png'
         cv2.imwrite(save_path, img)
 
 if __name__ == "__main__":
@@ -111,16 +117,19 @@ if __name__ == "__main__":
     n_proc = 2
 
     label_imgs = list(pathlib.Path(input_dir).glob("**/*.png"))
+    instance_imgs = set(pathlib.Path(input_dir).glob("**/*._instanceIds.png"))
+
     # filter out instancesIds and panoptic images if those exist
     label_imgs = list(filter(
         lambda f: ("_instanceIds" not in f.name and "_panoptic" not in f.name), 
         label_imgs))
+
     label_step = len(label_imgs)//n_proc
     label_idx = 0
 
     for i in range(n_proc):
         
-        proc = Process(target=target, args=[label_imgs[label_idx:label_idx+label_step], i])
+        proc = Process(target=target, args=[label_imgs[label_idx:label_idx+label_step], i, instance_imgs])
         proc.start()
         processes.append(proc)
         label_idx += label_step

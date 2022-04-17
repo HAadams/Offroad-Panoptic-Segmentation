@@ -18,13 +18,17 @@ import sys
 import pathlib
 import numpy as np
 import json
+import os
 
 def generatePanopticImages(dataPath):
 
     categories = []
     dataPath = pathlib.Path(dataPath)
 
-    annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}.json')
+    annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_panoptic.json')
+    outDir = dataPath.parent.joinpath(f"{dataPath.name}_panoptic")
+    if not os.path.exists(outDir):
+        os.mkdir(outDir)
     
     for label in labels:
         if label.ignoreInEval:
@@ -104,7 +108,7 @@ def generatePanopticImages(dataPath):
                             'file_name': outputFileName,
                             "segments_info": segmInfo})
 
-        Image.fromarray(pan_format).save(str(f).replace('_instanceIds.png', '_panoptic.png'))
+        Image.fromarray(pan_format).save(outDir.joinpath(f.name.replace('_instanceIds.png', '_panoptic.png')))
 
     print("\nSaving the json file {}".format(annotations_file))
 
