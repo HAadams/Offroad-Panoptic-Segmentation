@@ -52,7 +52,8 @@ def generatePanopticImages(dataPath):
 
         imageId = f.name.replace("_instanceIds.png", "")
         inputFileName = f.name.replace("_instanceIds.png", ".png")
-        outputFileName = f.name.replace("_instanceIds.png", "_panoptic.png")
+        inputFilePath = str(f).replace("_instanceIds.png", ".png")
+        outputFilePath = str(outDir.joinpath(f.name.replace('_instanceIds.png', '_panoptic.png')))
 
         # image entry, id for image is its filename without extension
         images.append({"id": imageId,
@@ -105,10 +106,11 @@ def generatePanopticImages(dataPath):
                                 "iscrowd": isCrowd})
 
         annotations.append({'image_id': imageId,
-                            'file_name': outputFileName,
-                            "segments_info": segmInfo})
+                            'file_name': inputFilePath,
+                            'pan_seg_file_name': outputFilePath,
+                            'segments_info': segmInfo})
 
-        Image.fromarray(pan_format).save(outDir.joinpath(f.name.replace('_instanceIds.png', '_panoptic.png')))
+        Image.fromarray(pan_format).save()
 
     print("\nSaving the json file {}".format(annotations_file))
 
