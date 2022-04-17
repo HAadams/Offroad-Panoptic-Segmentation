@@ -13,6 +13,7 @@ Moreover, this script also generates an annotations JSON file in COCO format.
 from PIL import Image
 from tqdm.auto import tqdm
 from labels import labels, id2labels
+
 import time
 import sys
 import pathlib
@@ -103,6 +104,7 @@ def generatePanopticImages(dataPath):
                                 "category_id": int(categoryId),
                                 "area": int(area),
                                 "bbox": bbox,
+                                "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html
                                 "iscrowd": isCrowd})
 
         annotations.append({'image_id': imageId,
