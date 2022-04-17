@@ -110,7 +110,7 @@ def generatePanopticImages(dataPath):
                             'pan_seg_file_name': outputFilePath,
                             'segments_info': segmInfo})
 
-        Image.fromarray(pan_format).save()
+        Image.fromarray(pan_format).save(outputFilePath)
 
     print("\nSaving the json file {}".format(annotations_file))
 
