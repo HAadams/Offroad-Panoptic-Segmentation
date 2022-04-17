@@ -87,12 +87,9 @@ def generateInstanceIds(img:np.array):
             
     return instance_ids
 
-def target(imgs_list, proc_id, instance_imgs):
+def target(imgs_list, proc_id):
     for  path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id, leave=False):
         save_path = str(path).replace('.png', '') + '_instanceIds.png'
-        # instanceIds already exists
-        if save_path in instance_imgs:
-            continue
         img = np.array(Image.open(path))
         img = generateInstanceIds(img)
         cv2.imwrite(save_path, img)
@@ -116,20 +113,26 @@ if __name__ == "__main__":
     processes = list()
     n_proc = 2
 
-    label_imgs = list(pathlib.Path(input_dir).glob("**/*.png"))
-    instance_imgs = set(pathlib.Path(input_dir).glob("**/*._instanceIds.png"))
+    colormap_imgs = list(pathlib.Path(input_dir).glob("**/*.png"))
+    label_imgs = list()
 
-    # filter out instancesIds and panoptic images if those exist
-    label_imgs = list(filter(
-        lambda f: ("_instanceIds" not in f.name and "_panoptic" not in f.name), 
-        label_imgs))
+    for file in colormap_imgs:
+        if '_panoptic.png' in file.name:
+            continue
 
+        if '_instanceIds.png' in file.name:
+            continue
+
+        instance_path = pathlib.Path(str(file).replace('.png', '') + '_instanceIds.png')
+        if not pathlib.Path.exists(instance_path):
+            label_imgs.append(file)
+    
     label_step = len(label_imgs)//n_proc
     label_idx = 0
 
     for i in range(n_proc):
         
-        proc = Process(target=target, args=[label_imgs[label_idx:label_idx+label_step], i, instance_imgs])
+        proc = Process(target=target, args=[label_imgs[label_idx:label_idx+label_step], i])
         proc.start()
         processes.append(proc)
         label_idx += label_step
