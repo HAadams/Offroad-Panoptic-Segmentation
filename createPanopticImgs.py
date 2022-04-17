@@ -83,7 +83,7 @@ def generatePanopticImages(dataPath):
             isCrowd = 0
             categoryId = labelInfo.id
 
-            # mask = originalFormat == segmentId
+            mask = originalFormat == segmentId
             # segmentation = list()
             # for i in range(mask.shape[0]):
             #     for j in range(mask.shape[1]):
