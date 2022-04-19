@@ -29,9 +29,11 @@ def generatePanopticImages(dataPath):
     dataPath = pathlib.Path(dataPath)
 
     annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_instances.json')
-    
+    seen = set([0])
     for label in labels:
-
+        if label.categoryId in seen:
+          continue
+        seen.add(label.categoryId)
         categories.append({'id': int(label.categoryId),
                            'name': label.name,
                            'color': label.color,
@@ -62,7 +64,8 @@ def generatePanopticImages(dataPath):
         segmentIds = np.unique(originalFormat)
 
         for segmentId in segmentIds:
-            
+            if segmentId == 0:
+              continue 
             labelId = segmentId
             if labelId > 1000:
                 labelId = segmentId // 1000
@@ -73,7 +76,7 @@ def generatePanopticImages(dataPath):
                 continue
 
             isCrowd = 0
-            categoryId = labelId #labelInfo.categoryId
+            categoryId = labelInfo.categoryId
 
             mask = originalFormat == segmentId
 
@@ -91,10 +94,12 @@ def generatePanopticImages(dataPath):
                     poly = Polygon(contour)
                     poly = poly.simplify(1.0, preserve_topology=False)
                     if not isinstance(poly, Polygon):
-                        seg = [np.array(x.exterior.coords).ravel().tolist() for x in poly.geoms]
+                        continue
+                        # seg = [np.array(x.exterior.coords).ravel().tolist() for x in poly.geoms]
+                        # segmentations.extend(seg)
                     else:
                         seg = np.array(poly.exterior.coords).ravel().tolist()
-                    segmentations.append(seg)
+                        segmentations.append(seg)
 
 
             area = np.sum(mask) # segment area computation
