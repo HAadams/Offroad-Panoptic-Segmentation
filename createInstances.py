@@ -45,7 +45,7 @@ def generatePanopticImages(dataPath):
     annotations = []
 
     files = list(pathlib.Path(dataPath).glob("**/*_instanceIds.png"))
-    cnt = 0
+    annotId = 1
     for f in tqdm(files, desc="Generating Panoptic Images"):
 
         originalFormat = np.array(Image.open(f))
@@ -110,7 +110,7 @@ def generatePanopticImages(dataPath):
             height = vert_idx[-1] - y + 1
             bbox = [int(x), int(y), int(width), int(height)]
 
-            annotations.append({"id": int(segmentId),
+            annotations.append({"id": annotId,
                                 "imageId": imageId,
                                 "category_id": int(categoryId),
                                 "segmentation": segmentations,
@@ -119,7 +119,7 @@ def generatePanopticImages(dataPath):
                                 "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html
                                 "iscrowd": isCrowd})
 
-        cnt += 1
+            annotId += 1
 
     print("\nSaving the json file {}".format(annotations_file))
 
