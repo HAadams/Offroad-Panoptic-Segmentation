@@ -20,22 +20,21 @@ import pathlib
 import numpy as np
 import json
 import os
+from shapely.geometry import Polygon
+from skimage import measure
 
 def generatePanopticImages(dataPath):
 
     categories = []
     dataPath = pathlib.Path(dataPath)
 
-    annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_panoptic.json')
-    outDir = dataPath.parent.joinpath(f"{dataPath.name}_panoptic")
-    if not os.path.exists(outDir):
-        os.mkdir(outDir)
+    annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_instances.json')
     
     for label in labels:
         if label.ignoreInEval:
             continue
 
-        categories.append({'id': int(label.id),
+        categories.append({'id': int(label.categoryId),
                            'name': label.name,
                            'color': label.color,
                            'supercategory': label.category,
@@ -53,7 +52,6 @@ def generatePanopticImages(dataPath):
 
         imageId = 0 #f.name.replace("_instanceIds.png", "")
         inputFileName = f.name.replace("_instanceIds.png", ".png")
-        outputFilePath = str(outDir.joinpath(f.name.replace('_instanceIds.png', '_panoptic.png')))
         imageId += 1
 
         # image entry, id for image is its filename without extension
@@ -62,12 +60,9 @@ def generatePanopticImages(dataPath):
                         "height": int(originalFormat.shape[0]),
                         "file_name": inputFileName
                         })
-        pan_format = np.zeros(
-            (originalFormat.shape[0], originalFormat.shape[1], 3), dtype=np.uint8
-        )
 
         segmentIds = np.unique(originalFormat)
-        segmInfo = []
+
         for segmentId in segmentIds:
             
             labelId = segmentId
@@ -79,12 +74,28 @@ def generatePanopticImages(dataPath):
             if labelInfo.ignoreInEval:
                 continue
 
-            color = (segmentId % 256, segmentId // 256, segmentId // 256 // 256)                
             isCrowd = 0
             categoryId = labelInfo.categoryId
 
             mask = originalFormat == segmentId
-            pan_format[mask] = color
+
+            contours = measure.find_contours(mask, 0.5, positive_orientation='low')
+            segmentations = list()
+            if labelInfo.hasInstances:
+                for contour in contours:
+                    # Flip from (row, col) representation to (x, y)
+                    # and subtract the padding pixel
+                    for i in range(len(contour)):
+                        row, col = contour[i]
+                        contour[i] = (col - 1, row - 1)
+
+                    # Make a polygon and simplify it
+                    poly = Polygon(contour)
+                    poly = poly.simplify(1.0, preserve_topology=False)
+                    print(poly)
+                    segmentation = np.array(poly.exterior.coords).ravel().tolist()
+                    segmentations.extend(segmentation)
+
 
             area = np.sum(mask) # segment area computation
 
@@ -99,19 +110,16 @@ def generatePanopticImages(dataPath):
             height = vert_idx[-1] - y + 1
             bbox = [int(x), int(y), int(width), int(height)]
 
-            segmInfo.append({"id": int(segmentId),
+            annotations.append({"id": int(segmentId),
+                                "imageId": imageId,
                                 "category_id": int(categoryId),
+                                "segmentation": segmentations,
                                 "area": int(area),
                                 "bbox": bbox,
                                 "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html
                                 "iscrowd": isCrowd})
 
-        annotations.append({'image_id': imageId,
-                            'id': cnt,
-                            'file_name': inputFileName,
-                            'segments_info': segmInfo})
         cnt += 1
-        Image.fromarray(pan_format).save(outputFilePath)
 
     print("\nSaving the json file {}".format(annotations_file))
 
