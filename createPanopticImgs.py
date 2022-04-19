@@ -52,7 +52,7 @@ def generatePanopticImages(dataPath):
         originalFormat = np.array(Image.open(f))
 
         imageId = 0 #f.name.replace("_instanceIds.png", "")
-        inputFileName = f.name.replace("_instanceIds.png", ".png")
+        inputFileName = f.name.replace("_instanceIds.png", ".jpg")
         outputFilePath = str(outDir.joinpath(f.name.replace('_instanceIds.png', '_panoptic.png')))
         imageId += 1
 
@@ -76,9 +76,6 @@ def generatePanopticImages(dataPath):
 
             labelInfo = id2labels[labelId]
 
-            if labelInfo.ignoreInEval:
-                continue
-
             color = (segmentId % 256, segmentId // 256, segmentId // 256 // 256)                
             isCrowd = 0
             categoryId = labelInfo.categoryId
@@ -100,7 +97,7 @@ def generatePanopticImages(dataPath):
             bbox = [int(x), int(y), int(width), int(height)]
 
             segmInfo.append({"id": int(segmentId),
-                                "category_id": int(categoryId),
+                                "category_id": int(labelId),
                                 "area": int(area),
                                 "bbox": bbox,
                                 "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html

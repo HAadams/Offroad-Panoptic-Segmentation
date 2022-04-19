@@ -31,8 +31,6 @@ def generatePanopticImages(dataPath):
     annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_instances.json')
     
     for label in labels:
-        if label.ignoreInEval:
-            continue
 
         categories.append({'id': int(label.categoryId),
                            'name': label.name,
@@ -51,7 +49,7 @@ def generatePanopticImages(dataPath):
         originalFormat = np.array(Image.open(f))
 
         imageId = 0 #f.name.replace("_instanceIds.png", "")
-        inputFileName = f.name.replace("_instanceIds.png", ".png")
+        inputFileName = f.name.replace("_instanceIds.png", ".jpg")
         imageId += 1
 
         # image entry, id for image is its filename without extension
@@ -71,11 +69,11 @@ def generatePanopticImages(dataPath):
 
             labelInfo = id2labels[labelId]
 
-            if labelInfo.ignoreInEval:
+            if not labelInfo.hasInstances:
                 continue
 
             isCrowd = 0
-            categoryId = labelInfo.categoryId
+            categoryId = labelId #labelInfo.categoryId
 
             mask = originalFormat == segmentId
 
@@ -92,9 +90,11 @@ def generatePanopticImages(dataPath):
                     # Make a polygon and simplify it
                     poly = Polygon(contour)
                     poly = poly.simplify(1.0, preserve_topology=False)
-                    print(poly)
-                    segmentation = np.array(poly.exterior.coords).ravel().tolist()
-                    segmentations.extend(segmentation)
+                    if not isinstance(poly, Polygon):
+                        seg = [np.array(x.exterior.coords).ravel().tolist() for x in poly.geoms]
+                    else:
+                        seg = np.array(poly.exterior.coords).ravel().tolist()
+                    segmentations.append(seg)
 
 
             area = np.sum(mask) # segment area computation
@@ -111,7 +111,7 @@ def generatePanopticImages(dataPath):
             bbox = [int(x), int(y), int(width), int(height)]
 
             annotations.append({"id": annotId,
-                                "imageId": imageId,
+                                "image_id": imageId,
                                 "category_id": int(categoryId),
                                 "segmentation": segmentations,
                                 "area": int(area),
