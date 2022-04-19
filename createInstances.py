@@ -51,7 +51,7 @@ def generatePanopticImages(dataPath):
         originalFormat = np.array(Image.open(f))
 
         imageId = 0 #f.name.replace("_instanceIds.png", "")
-        inputFileName = f.name.replace("_instanceIds.png", ".jpg")
+        inputFileName = f.name.replace("_instanceIds.png", ".png")
         imageId += 1
 
         # image entry, id for image is its filename without extension
@@ -94,13 +94,14 @@ def generatePanopticImages(dataPath):
                     poly = Polygon(contour)
                     poly = poly.simplify(1.0, preserve_topology=False)
                     if not isinstance(poly, Polygon):
-                        continue
-                        # seg = [np.array(x.exterior.coords).ravel().tolist() for x in poly.geoms]
-                        # segmentations.extend(seg)
+                        seg = [np.array(x.exterior.coords).ravel().tolist() for x in poly.geoms]
+                        segmentations.extend(seg)
                     else:
                         seg = np.array(poly.exterior.coords).ravel().tolist()
                         segmentations.append(seg)
 
+            if len(segmentations) == 0:
+                continue
 
             area = np.sum(mask) # segment area computation
 

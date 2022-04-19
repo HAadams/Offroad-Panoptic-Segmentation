@@ -53,8 +53,8 @@ def generatePanopticImages(dataPath):
         originalFormat = np.array(Image.open(f))
 
         imageId = 0 #f.name.replace("_instanceIds.png", "")
-        inputFileName = f.name.replace("_instanceIds.png", ".jpg")
-        outputFilePath = str(outDir.joinpath(f.name.replace('_instanceIds.png', '_panoptic.png')))
+        inputFileName = f.name.replace("_instanceIds.png", ".png")
+        outputFilePath = str(outDir.joinpath(f.name.replace('_instanceIds.png', '.png')))
         imageId += 1
 
         # image entry, id for image is its filename without extension
