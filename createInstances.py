@@ -29,6 +29,8 @@ def generatePanopticImages(dataPath):
     dataPath = pathlib.Path(dataPath)
 
     annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_instances.json')
+    categories_file = dataPath.parent.joinpath(f'categories.json')
+
     seen = set([0])
     for label in labels:
         if label.categoryId in seen:
@@ -46,11 +48,11 @@ def generatePanopticImages(dataPath):
 
     files = list(pathlib.Path(dataPath).glob("**/*_instanceIds.png"))
     annotId = 1
+    imageId = 1
     for f in tqdm(files, desc="Generating Panoptic Images"):
 
         originalFormat = np.array(Image.open(f))
 
-        imageId = 0 #f.name.replace("_instanceIds.png", "")
         inputFileName = f.name.replace("_instanceIds.png", ".png")
         imageId += 1
 
@@ -135,6 +137,9 @@ def generatePanopticImages(dataPath):
 
     with open(annotations_file, 'w') as f:
         json.dump(d, f, sort_keys=True, indent=4)
+
+    with open(categories_file, 'w') as f:
+        json.dump(categories, f, indent=4)
 
 
 if __name__ == "__main__":
