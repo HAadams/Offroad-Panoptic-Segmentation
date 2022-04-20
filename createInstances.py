@@ -50,7 +50,6 @@ def generatePanopticImages(dataPath):
         originalFormat = np.array(Image.open(f))
 
         inputFileName = f.name.replace("_instanceIds.png", ".png")
-        imageId += 1
 
         # image entry, id for image is its filename without extension
         images.append({"id": imageId,
@@ -123,6 +122,7 @@ def generatePanopticImages(dataPath):
                                 "iscrowd": isCrowd})
 
             annotId += 1
+            imageId += 1
 
     print("\nSaving the json file {}".format(annotations_file))
 

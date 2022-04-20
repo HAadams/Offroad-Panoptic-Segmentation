@@ -43,15 +43,14 @@ def generatePanopticImages(dataPath):
     annotations = []
 
     files = list(pathlib.Path(dataPath).glob("**/*_instanceIds.png"))
-    cnt = 0
+    annotId = 0
+    imageId = 0
     for f in tqdm(files, desc="Generating Panoptic Images"):
 
         originalFormat = np.array(Image.open(f))
 
-        imageId = 0 #f.name.replace("_instanceIds.png", "")
         inputFileName = f.name.replace("_instanceIds.png", ".png")
         outputFilePath = str(outDir.joinpath(f.name.replace('_instanceIds.png', '.png')))
-        imageId += 1
 
         # image entry, id for image is its filename without extension
         images.append({"id": imageId,
@@ -101,10 +100,11 @@ def generatePanopticImages(dataPath):
                                 "iscrowd": isCrowd})
 
         annotations.append({'image_id': imageId,
-                            'id': cnt,
+                            'id': annotId,
                             'file_name': inputFileName,
                             'segments_info': segmInfo})
-        cnt += 1
+        annotId += 1
+        imageId += 1
         Image.fromarray(pan_format).save(outputFilePath)
 
     print("\nSaving the json file {}".format(annotations_file))
