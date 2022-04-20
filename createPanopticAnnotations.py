@@ -93,7 +93,7 @@ def generatePanopticImages(dataPath):
             bbox = [int(x), int(y), int(width), int(height)]
 
             segmInfo.append({"id": int(segmentId),
-                                "category_id": labelId,
+                                "category_id": int(labelInfo.id),
                                 "area": int(area),
                                 "bbox": bbox,
                                 "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html

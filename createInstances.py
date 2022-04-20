@@ -114,7 +114,7 @@ def generatePanopticImages(dataPath):
 
             annotations.append({"id": annotId,
                                 "image_id": imageId,
-                                "category_id": int(labelId),
+                                "category_id": int(labelInfo.id),
                                 "segmentation": segmentations,
                                 "area": int(area),
                                 "bbox": bbox,
@@ -122,7 +122,8 @@ def generatePanopticImages(dataPath):
                                 "iscrowd": isCrowd})
 
             annotId += 1
-            imageId += 1
+        
+        imageId += 1
 
     print("\nSaving the json file {}".format(annotations_file))
 
