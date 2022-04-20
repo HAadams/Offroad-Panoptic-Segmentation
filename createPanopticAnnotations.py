@@ -31,12 +31,8 @@ def generatePanopticImages(dataPath):
     if not os.path.exists(outDir):
         os.mkdir(outDir)
 
-    seen = set([0])
     for label in labels:
-        if label.categoryId in seen:
-          continue
-        seen.add(label.categoryId)
-        categories.append({'id': int(label.categoryId),
+        categories.append({'id': int(label.id),
                            'name': label.name,
                            'color': label.color,
                            'supercategory': label.category,
@@ -80,7 +76,6 @@ def generatePanopticImages(dataPath):
 
             color = (segmentId % 256, segmentId // 256, segmentId // 256 // 256)                
             isCrowd = 0
-            categoryId = labelInfo.categoryId
 
             mask = originalFormat == segmentId
             pan_format[mask] = color
@@ -99,7 +94,7 @@ def generatePanopticImages(dataPath):
             bbox = [int(x), int(y), int(width), int(height)]
 
             segmInfo.append({"id": int(segmentId),
-                                "category_id": categoryId,
+                                "category_id": labelId,
                                 "area": int(area),
                                 "bbox": bbox,
                                 "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html

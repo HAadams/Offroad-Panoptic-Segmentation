@@ -31,12 +31,8 @@ def generatePanopticImages(dataPath):
     annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_instances.json')
     categories_file = dataPath.parent.joinpath(f'categories.json')
 
-    seen = set([0])
     for label in labels:
-        if label.categoryId in seen:
-          continue
-        seen.add(label.categoryId)
-        categories.append({'id': int(label.categoryId),
+        categories.append({'id': int(label.id),
                            'name': label.name,
                            'color': label.color,
                            'supercategory': label.category,
@@ -78,7 +74,6 @@ def generatePanopticImages(dataPath):
                 continue
 
             isCrowd = 0
-            categoryId = labelInfo.categoryId
 
             mask = originalFormat == segmentId
 
@@ -120,7 +115,7 @@ def generatePanopticImages(dataPath):
 
             annotations.append({"id": annotId,
                                 "image_id": imageId,
-                                "category_id": int(categoryId),
+                                "category_id": int(labelId),
                                 "segmentation": segmentations,
                                 "area": int(area),
                                 "bbox": bbox,
