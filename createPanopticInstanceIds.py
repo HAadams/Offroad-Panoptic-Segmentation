@@ -27,18 +27,17 @@ def generateInstanceIds(img:np.array):
 
     segs_count = Counter()
 
-    x, y, _ = img.shape
-    instance_ids = np.zeros(shape=(x,y), dtype=np.uint16)
+    X, Y, _ = img.shape
+    instance_ids = np.zeros(shape=(X,Y), dtype=np.uint16)
 
     def floodFill(x, y, color, l_id, hasInstances):
 
-        visited = set()
+        visited = np.zeros(shape=(X,Y), dtype=np.uint8)
         stack = [(x,y)]
         seg_id = l_id
 
         if hasInstances:
-            R,G,B = color
-            seg_id = l_id*1000 #R+G*256+B*256^2
+            seg_id = l_id*1000
             seg_id += segs_count[color]
 
         while stack:
@@ -52,11 +51,11 @@ def generateInstanceIds(img:np.array):
             if not (img[x][y][0] == color[0] and img[x][y][1] == color[1] and img[x][y][2] == color[2]):
                 continue
             
-            if (x, y) in visited:
+            if visited[x][y]:
                 continue
             
             instance_ids[x][y] = seg_id
-            visited.add((x, y))
+            visited[x][y] = 1
             img[x][y] = 0
 
             stack.append((x, y+1))
@@ -64,8 +63,8 @@ def generateInstanceIds(img:np.array):
             stack.append((x+1, y))
             stack.append((x-1, y))    
 
-    for i in range(x):
-        for j in range(y):
+    for i in range(X):
+        for j in range(Y):
 
             # skip marked/visited pixels
             if img[i][j][0] == 0 and img[i][j][1] == 0 and img[i][j][2] == 0:
@@ -78,9 +77,12 @@ def generateInstanceIds(img:np.array):
 
             has_instances = color2labels[color].hasInstances
             seg_id = color2labels[color].id
-            
-            # mark all pixels of this single instance as visited and fill the instanceIds
-            floodFill(i, j, color, seg_id, has_instances)
+
+            if not has_instances:
+                instance_ids[i][j] = seg_id
+            else:
+                # mark all pixels of this single instance as visited and fill the instanceIds
+                floodFill(i, j, color, seg_id, has_instances)
 
             # each instance of the same class (color) should be differentiated 
             segs_count[color] += 1
