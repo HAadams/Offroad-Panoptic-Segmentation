@@ -3,6 +3,9 @@
 This repo contains code for applying Panoptic Segmentation to a custom dataset.
 The specific dataset used in this repo (to build the labels.py file) is RUGD (http://rugd.vision/)
 
+## Dataset Requirements
+The dataset must have colormap files and images.
+
 ---
 **NOTE**
 Change the labels.py file (add your own labels names, and change which labels are instances (hasInstance field). Do not modify the void label.)
