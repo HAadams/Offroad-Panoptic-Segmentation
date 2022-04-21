@@ -18,7 +18,7 @@ Change the labels.py file (add your own labels names, and change which labels ar
 
 
 
-## Data Processing
+## Data Processing ([Colab Notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHlaa88c38XznxUrzY6ahq?usp=sharing))
 
 In order to trian a Panoptic Segmentation model using Detectron2, I needed to use the `register_coco_panoptic_separated` function to register the dataset. This method expects the following data.
 
@@ -28,7 +28,6 @@ In order to trian a Panoptic Segmentation model using Detectron2, I needed to us
 4. Semantic Segmentation Images Annotaitons (used panopticapi)
 5. Instance Segmentation JSON Annotations (createInstances.py)
 
-An example of how each script was used on the RUGD dataset can be found here: [Data Preprocessing Colab Notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHlaa88c38XznxUrzY6ahq?usp=sharing)
 
 The dataset registeration can simply then be done throug the following code
 
@@ -47,9 +46,8 @@ register_coco_panoptic_separated(
 
 ```
 
-## Model Training 
+## Model Training ([Colab notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHlaa88c38XznxUrzY6ahq?usp=sharing))
 
-Use [This Colab notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHlaa88c38XznxUrzY6ahq?usp=sharing) for an example on how to train a Panoptic Segmentaiton model.
 
 Here are the parameters used in the example link above. Make sure to change them to match your own needs. For example, the parameters below use 25 as the number of classes.
 
@@ -83,8 +81,6 @@ trainer.train()
 
 
 ### TODO:
-  - Use shapely to speed-up the process of generating instance ids.
-  - Add code to train a Detectron2 panoptic segmentation model on a custom dataset.
-      - Use `register_coco_panoptic_separated` and modify `load_seg_files` to use png instead of jpg.
+  - Find a way to speed-up the process of generating instance ids.
   - Add code to run evaluation using the panoptic quality metric.
 
