@@ -4,7 +4,8 @@ This repo contains code for applying Panoptic Segmentation to a custom dataset.
 The specific dataset used in this repo (to build the labels.py file) is RUGD (http://rugd.vision/)
 
 ## Dataset Requirements
-The dataset must have colormap files and images.
+The dataset must have images and their annotations in colormap format. See example below.
+![RUGD image & its colormap](https://github.com/HAadams/Offroad-Panoptic-Segmentation/blob/main/images/colormap_example.png)
 
 ---
 **NOTE**
