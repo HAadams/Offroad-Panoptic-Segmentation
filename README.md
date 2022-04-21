@@ -5,7 +5,7 @@ The specific dataset used in this repo (to build the labels.py file) is RUGD (ht
 
 ## Dataset Requirements
 The dataset must have images and their annotations in colormap format. See example below.
-![RUGD image & its colormap](https://github.com/HAadams/Offroad-Panoptic-Segmentation/blob/main/images/colormap_example.png)
+![RUGD image & its colormap](https://github.com/HAadams/Offroad-Panoptic-Segmentation/blob/main/images/dataset_example.png)
 
 ---
 **NOTE**
