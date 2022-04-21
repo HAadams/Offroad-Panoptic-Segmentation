@@ -8,7 +8,7 @@ The specific dataset used in this repo (to build the labels.py file) is RUGD (ht
 
   - `createInstances.py` is used to create the instance segmentation json annotations based on labels.py for RUGD according to the COCO format. It is also used to generate the categories.json file. This file is used to genereate the semantic segmentaiton annotation png files.
   - `createPanopticAnnotations.py` is used to create panoptic segmentation json annotations and panoptic image annotations according to the COCO format.
-  - `createPanopticInstanceIds.py` is used to create the instance ids images from colormap labels. This script takes a very long time (~5 seconds per image) However, it supports parallel processing. Specify the number of processes through the `n_proc` variable. 
+  - `createPanopticInstanceIds.py` is used to create the instance ids images from colormap labels. This script takes a very long time (~5 seconds per 560x600 image) However, it supports parallel processing. Specify the number of processes through the `n_proc` variable. 
 
 
 
