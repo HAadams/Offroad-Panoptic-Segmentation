@@ -32,6 +32,8 @@ def generatePanopticImages(dataPath):
         os.mkdir(outDir)
 
     for label in labels:
+        if label.id == 0:
+            continue
         categories.append({'id': int(label.id),
                            'name': label.name,
                            'color': label.color,

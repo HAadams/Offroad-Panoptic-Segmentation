@@ -32,6 +32,8 @@ def generatePanopticImages(dataPath):
     categories_file = dataPath.parent.joinpath(f'categories.json')
 
     for label in labels:
+        if label.id == 0:
+            continue
         categories.append({'id': int(label.id),
                            'name': label.name,
                            'color': label.color,
