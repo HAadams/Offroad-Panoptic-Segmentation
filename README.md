@@ -46,6 +46,8 @@ Use [This Colab notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHl
 
 Here are the parameters used in the example link above. Make sure to change them to match your own needs. For example, the parameters below use 25 as the number of classes.
 
+        NOTE: Detectron2 appends `_separated`  to your dataset name registered through register_coco_panoptic_separated. So, make sure to add it like the example below.
+
 ```python
 cfg = get_cfg()
 # cfg.MODEL.DEVICE='cpu' # Use CPU for debugging
