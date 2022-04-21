@@ -1,10 +1,12 @@
-# Panoptic Segmentation on Custom Datasets
+# Panoptic Segmentation Training on Custom Datasets Using Detectron2
 
 This repo contains code for applying Panoptic Segmentation to a custom dataset.
 The specific dataset used in this repo (to build the labels.py file) is RUGD (http://rugd.vision/)
 
-    NOTE: Change the labels.py file (add your own labels names, and change which labels are instances (hasInstance field). Do not modify the void label.)
-
+---
+**NOTE**
+Change the labels.py file (add your own labels names, and change which labels are instances (hasInstance field). Do not modify the void label.)
+---
 
   - `createInstances.py` is used to create the instance segmentation json annotations based on labels.py for RUGD according to the COCO format. It is also used to generate the categories.json file. This file is used to genereate the semantic segmentaiton annotation png files.
   - `createPanopticAnnotations.py` is used to create panoptic segmentation json annotations and panoptic image annotations according to the COCO format.
@@ -12,7 +14,7 @@ The specific dataset used in this repo (to build the labels.py file) is RUGD (ht
 
 
 
-### Data Processing
+## Data Processing
 
 In order to trian a Panoptic Segmentation model using Detectron2, I needed to use the `register_coco_panoptic_separated` function to register the dataset. This method expects the following data.
 
@@ -41,13 +43,16 @@ register_coco_panoptic_separated(
 
 ```
 
-### Model Training 
+## Model Training 
 
 Use [This Colab notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHlaa88c38XznxUrzY6ahq?usp=sharing) for an example on how to train a Panoptic Segmentaiton model.
 
 Here are the parameters used in the example link above. Make sure to change them to match your own needs. For example, the parameters below use 25 as the number of classes.
 
-        NOTE: Detectron2 appends `_separated`  to your dataset name registered through register_coco_panoptic_separated. So, make sure to add it like the example below.
+---
+**NOTE**
+Detectron2 appends `_separated`  to your dataset name registered through register_coco_panoptic_separated. So, make sure to add it like the example below.
+---
 
 ```python
 cfg = get_cfg()
