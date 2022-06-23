@@ -11,112 +11,89 @@ Usage Example
 
 """
 
-from tqdm.auto import tqdm
-from PIL import Image
-from labels import color2labels
-from collections import Counter
-from multiprocessing import Process
-import time
-import cv2
-import sys
 import pathlib
+import sys
+import time
+from collections import Counter
+from multiprocessing import Pool
+
+import cv2
 import numpy as np
+import parallelbar
+from PIL import Image
+from scipy.spatial.distance import cdist
+from skimage.segmentation import flood_fill
+
+from labels import get_color2labels, get_id2labels
 
 
-def generateInstanceIds(img:np.array):
+def generateInstanceIds(image_array: np.ndarray, colors: np.ndarray, color_ids: np.ndarray, ids_to_labels) -> np.ndarray:
+    # Initialize output array
+    instance_ids = np.zeros((image_array.shape[0], image_array.shape[1]), dtype=np.int16)
 
-    segs_count = Counter()
+    # Match colors to label ids
+    R, C = np.where(cdist(image_array.reshape(-1, 3), colors) == 0)
+    instance_ids.ravel()[R] = color_ids[C]
 
-    X, Y, _ = img.shape
-    instance_ids = np.zeros(shape=(X,Y), dtype=np.uint16)
+    # Make them negative (to determine which pixels have been visited)
+    instance_ids = (-instance_ids).astype(np.int32)
 
-    def floodFill(x, y, color, l_id, hasInstances):
-
-        visited = np.zeros(shape=(X,Y), dtype=np.uint8)
-        stack = [(x,y)]
-        seg_id = l_id
-
-        if hasInstances:
-            seg_id = l_id*1000
-            seg_id += segs_count[color]
-
-        while stack:
-            x, y = stack.pop()
-            if x < 0 or x >= img.shape[0] or y < 0 or y >= img.shape[1]:
-                continue
-
-            if img[x][y][0] == 0 and img[x][y][1] == 0 and img[x][y][2] == 0:
-                continue
-            
-            if not (img[x][y][0] == color[0] and img[x][y][1] == color[1] and img[x][y][2] == color[2]):
-                continue
-            
-            if visited[x][y]:
-                continue
-            
-            instance_ids[x][y] = seg_id
-            visited[x][y] = 1
-            img[x][y] = 0
-
-            stack.append((x, y+1))
-            stack.append((x, y-1))
-            stack.append((x+1, y))
-            stack.append((x-1, y))    
-
-    for i in range(X):
-        for j in range(Y):
-
-            # skip marked/visited pixels
-            if img[i][j][0] == 0 and img[i][j][1] == 0 and img[i][j][2] == 0:
-                continue
-            
-            color = (img[i][j][0], img[i][j][1], img[i][j][2])
-
-            if color not in color2labels:
-                continue
-
-            has_instances = color2labels[color].hasInstances
-            seg_id = color2labels[color].id
-
-            if not has_instances:
-                instance_ids[i][j] = seg_id
-            else:
-                # mark all pixels of this single instance as visited and fill the instanceIds
-                floodFill(i, j, color, seg_id, has_instances)
-
-            # each instance of the same class (color) should be differentiated 
-            segs_count[color] += 1
-            
+    # Do flood fill to find instances
+    segment_count = Counter()
+    y_dim, x_dim = instance_ids.shape
+    for x in range(x_dim):
+        for y in range(y_dim):
+            if instance_ids[y][x] < 0:
+                label = ids_to_labels[-instance_ids[y][x]]
+                if label.hasInstances:
+                    # Keep track of unique instances
+                    new_val = label.id * 1000 + segment_count[label.id]
+                    segment_count[label.id] += 1
+                else:
+                    new_val = label.id
+                flood_fill(instance_ids, (y, x), new_val, tolerance=0, in_place=True)
+    
     return instance_ids
 
-def target(imgs_list, proc_id):
-    for  path in tqdm(imgs_list, desc=f"Process #{proc_id}", position=proc_id, leave=False):
-        save_path = str(path).replace('.png', '') + '_instanceIds.png'
-        img = np.array(Image.open(path))
-        img = generateInstanceIds(img)
-        cv2.imwrite(save_path, img)
 
-if __name__ == "__main__":
+def target_process(args: tuple) -> str:
+    image_path, colors, color_ids, ids_to_labels  = args
+    save_path = str(image_path).replace(".png", "") + "_instanceIds.png"
+    image = np.array(Image.open(image_path))
+    instance_image = generateInstanceIds(image, colors, color_ids, ids_to_labels)
+    cv2.imwrite(save_path, instance_image)
+    return save_path
 
+
+def main(args):
     """
     We'll create N processes and delegate a portion of the images to each process.
     For example, if we have 10 images and 2 processes, this code will create two processes.
     Each process will be responsible for 5 separate images.
     """
 
-    args = sys.argv
-    if len(args) < 2:
+    if len(args) < 1:
         print("Please pass directory path")
         exit()
 
-    input_dir = args[1]
+    input_dir = args[0]
+
+    is_rugd = True
+    if len(args) > 1:
+        if args[1] == "rellis":
+            is_rugd = False
+
+    n_proc = 2
+    if len(args) > 2:
+        try:
+            n_proc = int(args[2])
+        except:
+            pass
 
     start = time.time()
-    processes = list()
-    n_proc = 2
 
     colormap_imgs = list(pathlib.Path(input_dir).glob("**/*.png"))
-    label_imgs = list()
+    label_imgs = []
 
     for file in colormap_imgs:
         if '_panoptic.png' in file.name:
@@ -128,19 +105,24 @@ if __name__ == "__main__":
         instance_path = pathlib.Path(str(file).replace('.png', '') + '_instanceIds.png')
         if not pathlib.Path.exists(instance_path):
             label_imgs.append(file)
-    
-    label_step = len(label_imgs)//n_proc
-    label_idx = 0
 
-    for i in range(n_proc):
-        
-        proc = Process(target=target, args=[label_imgs[label_idx:label_idx+label_step], i])
-        proc.start()
-        processes.append(proc)
-        label_idx += label_step
-        
-    for proc in processes:
-        proc.join()
+    color2labels = get_color2labels(is_rugd)
+    colors = np.array([k for k in color2labels.keys()])
+    color_ids = np.array([v.id for v in color2labels.values()])
+    ids_to_labels = get_id2labels(is_rugd)
+
+    with Pool():
+        results = parallelbar.progress_imap(
+            func=target_process,
+            tasks=[(label_image, colors, color_ids, ids_to_labels) for label_image in label_imgs],
+            n_cpu=n_proc,
+            chunk_size=10,
+        )
+        print(f"{len(results)} files generated")
 
     end = time.time()
     print(f"TOOK {end-start} SECONDS!")
+    
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

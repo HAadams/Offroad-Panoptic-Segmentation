@@ -10,20 +10,21 @@ The generated _panoptic.png image is saved in teh same directory where _instance
 Moreover, this script also generates an annotations JSON file in COCO format.
 """
 
-from PIL import Image
-from tqdm.auto import tqdm
-from labels import labels, id2labels
-
-import time
-import sys
-import pathlib
-import numpy as np
 import json
-import os
+import pathlib
+import sys
+import time
+
+import numpy as np
+from PIL import Image
 from shapely.geometry import Polygon
 from skimage import measure
+from tqdm.auto import tqdm
 
-def generatePanopticImages(dataPath):
+from labels import get_id2labels, get_labels
+
+
+def generatePanopticImages(dataPath, is_rugd: bool = True):
 
     categories = []
     dataPath = pathlib.Path(dataPath)
@@ -31,7 +32,7 @@ def generatePanopticImages(dataPath):
     annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_instances.json')
     categories_file = dataPath.parent.joinpath(f'categories.json')
 
-    for label in labels:
+    for label in get_labels(is_rugd):
         if label.id == 0:
             continue
         categories.append({'id': int(label.id),
@@ -43,6 +44,7 @@ def generatePanopticImages(dataPath):
 
     images = []
     annotations = []
+    id2labels = get_id2labels(is_rugd)
 
     files = list(pathlib.Path(dataPath).glob("**/*_instanceIds.png"))
     annotId = 1
@@ -150,9 +152,14 @@ if __name__ == "__main__":
 
     input_dir = args[1]
 
+    is_rugd = True
+    if len(args) > 2:
+        if args[2] == "rellis":
+            is_rugd = False
+
     start = time.time()
 
-    generatePanopticImages(input_dir)
+    generatePanopticImages(input_dir, is_rugd)
 
     end = time.time()
     print(f"TOOK {end-start} SECONDS!")
