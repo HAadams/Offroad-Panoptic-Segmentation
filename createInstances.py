@@ -84,6 +84,8 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
             segmentations = list()
             if labelInfo.hasInstances:
                 for contour in contours:
+                    if len(contour) < 3:
+                        continue
                     # Flip from (row, col) representation to (x, y)
                     # and subtract the padding pixel
                     for i in range(len(contour)):
@@ -142,19 +144,17 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
         json.dump(categories, f, indent=4)
 
 
-if __name__ == "__main__":
 
-
-    args = sys.argv
-    if len(args) < 2:
+def main(args):
+    if len(args) < 1:
         print("Please pass directory path")
         exit()
 
-    input_dir = args[1]
+    input_dir = args[0]
 
     is_rugd = True
-    if len(args) > 2:
-        if args[2] == "rellis":
+    if len(args) > 1:
+        if args[1] == "rellis":
             is_rugd = False
 
     start = time.time()
@@ -163,3 +163,7 @@ if __name__ == "__main__":
 
     end = time.time()
     print(f"TOOK {end-start} SECONDS!")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])    

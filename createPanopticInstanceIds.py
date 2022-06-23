@@ -29,14 +29,14 @@ from labels import get_color2labels, get_id2labels
 
 def generateInstanceIds(image_array: np.ndarray, colors: np.ndarray, color_ids: np.ndarray, ids_to_labels) -> np.ndarray:
     # Initialize output array
-    instance_ids = np.zeros((image_array.shape[0], image_array.shape[1]), dtype=np.int16)
+    instance_ids = np.zeros((image_array.shape[0], image_array.shape[1]), dtype=np.int32)
 
     # Match colors to label ids
     R, C = np.where(cdist(image_array.reshape(-1, 3), colors) == 0)
     instance_ids.ravel()[R] = color_ids[C]
 
     # Make them negative (to determine which pixels have been visited)
-    instance_ids = (-instance_ids).astype(np.int32)
+    instance_ids = -instance_ids
 
     # Do flood fill to find instances
     segment_count = Counter()
@@ -51,13 +51,13 @@ def generateInstanceIds(image_array: np.ndarray, colors: np.ndarray, color_ids: 
                     segment_count[label.id] += 1
                 else:
                     new_val = label.id
-                flood_fill(instance_ids, (y, x), new_val, tolerance=0, in_place=True)
+                flood_fill(instance_ids, (y, x), new_val, connectivity=1, in_place=True)
     
-    return instance_ids
+    return instance_ids.astype(np.uint16)
 
 
 def target_process(args: tuple) -> str:
-    image_path, colors, color_ids, ids_to_labels  = args
+    image_path, colors, color_ids, ids_to_labels = args
     save_path = str(image_path).replace(".png", "") + "_instanceIds.png"
     image = np.array(Image.open(image_path))
     instance_image = generateInstanceIds(image, colors, color_ids, ids_to_labels)

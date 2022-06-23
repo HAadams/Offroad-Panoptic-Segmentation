@@ -16,6 +16,7 @@ import pathlib
 import sys
 import time
 
+import cv2
 import numpy as np
 from PIL import Image
 from tqdm.auto import tqdm
@@ -51,9 +52,7 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
     annotId = 0
     imageId = 0
     for f in tqdm(files, desc="Generating Panoptic Images"):
-
-        originalFormat = np.array(Image.open(f))
-
+        originalFormat = np.array(cv2.imread(str(f), flags=-1), dtype=np.uint16)
         inputFileName = f.name.replace("_instanceIds.png", ".png")
         outputFilePath = str(outDir.joinpath(f.name.replace('_instanceIds.png', '.png')))
 
