@@ -76,11 +76,13 @@ os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 trainer = DefaultTrainer(cfg) 
 trainer.resume_or_load(resume=False)
 trainer.train()
-
 ```
 
+## To Install All Necessary Dependencies:
+1. Run command `python -m venv .venv` to create a virtual environment
+2. Run command `./.venv/Scripts/Activate.ps1` to activate the environment
+3. Install packages with: `pip install -r ./requirements.txt`
 
 ### TODO:
-  - Find a way to speed-up the process of generating instance ids.
   - Add code to run evaluation using the panoptic quality metric.
 
