@@ -26,20 +26,29 @@ from labels import get_id2labels, get_labels
 
 def generatePanopticImages(dataPath, is_rugd: bool = True):
 
-    categories = []
+    categories, instance_categories = [], []
     dataPath = pathlib.Path(dataPath)
 
-    annotations_file = dataPath.parent.joinpath(f'annotations_{dataPath.name}_instances.json')
-    categories_file = dataPath.parent.joinpath(f'categories.json')
+    categories_file = dataPath.parent.joinpath(f"categories.json")
 
     for label in get_labels(is_rugd):
         if label.id == 0:
             continue
-        categories.append({'id': int(label.id),
-                           'name': label.name,
-                           'color': label.color,
-                           'supercategory': label.category,
-                           'isthing': 1 if label.hasInstances else 0})
+
+        category = {
+            "id": int(label.id),
+            "name": label.name,
+            "color": label.color,
+            "supercategory": label.category,
+            "isthing": 1 if label.hasInstances else 0
+        }
+
+        if label.hasInstances:
+            instance_categories.append(category)
+        categories.append(category)
+
+    with open(categories_file, "w") as f:
+        json.dump(categories, f, indent=4)
 
 
     images = []
@@ -52,15 +61,15 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
     for f in tqdm(files, desc="Generating Panoptic Images"):
 
         originalFormat = np.array(Image.open(f))
-
         inputFileName = f.name.replace("_instanceIds.png", ".jpg")
 
         # image entry, id for image is its filename without extension
-        images.append({"id": imageId,
-                        "width": int(originalFormat.shape[1]),
-                        "height": int(originalFormat.shape[0]),
-                        "file_name": inputFileName
-                        })
+        images.append({
+            "id": imageId,
+            "width": int(originalFormat.shape[1]),
+            "height": int(originalFormat.shape[0]),
+            "file_name": inputFileName
+        })
 
         segmentIds = np.unique(originalFormat)
 
@@ -80,7 +89,7 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
 
             mask = originalFormat == segmentId
 
-            contours = measure.find_contours(mask, 0.5, positive_orientation='low')
+            contours = measure.find_contours(mask, 0.5, positive_orientation="low")
             segmentations = list()
             if labelInfo.hasInstances:
                 for contour in contours:
@@ -118,31 +127,31 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
             height = vert_idx[-1] - y + 1
             bbox = [int(x), int(y), int(width), int(height)]
 
-            annotations.append({"id": annotId,
-                                "image_id": imageId,
-                                "category_id": int(labelInfo.id),
-                                "segmentation": segmentations,
-                                "area": int(area),
-                                "bbox": bbox,
-                                "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html
-                                "iscrowd": isCrowd})
+            annotations.append({
+                "id": annotId,
+                "image_id": imageId,
+                "category_id": int(labelInfo.id),
+                "segmentation": segmentations,
+                "area": int(area),
+                "bbox": bbox,
+                "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html
+                "iscrowd": isCrowd
+            })
 
             annotId += 1
-        
         imageId += 1
 
+    annotations_file = dataPath.parent.joinpath(f"annotations_{dataPath.name}_instances.json")
     print("\nSaving the json file {}".format(annotations_file))
 
-    d = {'images': images,
-            'annotations': annotations,
-            'categories': categories}
+    annotation_data = {
+        "images": images,
+        "annotations": annotations,
+        "categories": instance_categories
+    }
 
-    with open(annotations_file, 'w') as f:
-        json.dump(d, f, sort_keys=True, indent=4)
-
-    with open(categories_file, 'w') as f:
-        json.dump(categories, f, indent=4)
-
+    with open(annotations_file, "w") as f:
+        json.dump(annotation_data, f, sort_keys=True, indent=4)
 
 
 def main(args):
