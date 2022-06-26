@@ -35,14 +35,13 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
         os.mkdir(outDir)
 
     for label in get_labels(is_rugd):
-        if label.id != 0:
-            categories.append({
-                'id': int(label.id),
-                'name': label.name,
-                'color': label.color,
-                'supercategory': label.category,
-                'isthing': 1 if label.hasInstances else 0
-            })
+        categories.append({
+            'id': int(label.id),
+            'name': label.name,
+            'color': label.color,
+            'supercategory': label.category,
+            'isthing': 1 if label.hasInstances else 0
+        })
 
     images = []
     annotations = []
