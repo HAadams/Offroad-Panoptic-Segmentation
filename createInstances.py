@@ -32,9 +32,6 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
     categories_file = dataPath.parent.joinpath(f"categories.json")
 
     for label in get_labels(is_rugd):
-        if label.id == 0:
-            continue
-
         category = {
             "id": int(label.id),
             "name": label.name,
