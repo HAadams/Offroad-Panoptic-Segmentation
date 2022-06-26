@@ -56,8 +56,8 @@ def generatePanopticImages(dataPath, is_rugd: bool = True):
     id2labels = get_id2labels(is_rugd)
 
     files = list(pathlib.Path(dataPath).glob("**/*_instanceIds.png"))
-    annotId = 1
-    imageId = 1
+    annotId = 0
+    imageId = 0
     for f in tqdm(files, desc="Generating Panoptic Images"):
 
         originalFormat = np.array(Image.open(f))
