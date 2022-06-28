@@ -70,7 +70,7 @@ def generate_panoptic_image(args) -> tuple:
             "area": area,
             "bbox": bbox,
             "bbox_mode": 1, # XYWH_ABS=1 see https://detectron2.readthedocs.io/en/latest/modules/structures.html
-            "is_crowd": 0
+            "iscrowd": 0
         })
 
     Image.fromarray(pan_format).save(output_filepath)
