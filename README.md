@@ -18,7 +18,7 @@ Change the labels.py file (add your own labels names, and change which labels ar
 
 
 
-## Data Processing ([Colab Notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHlaa88c38XznxUrzY6ahq?usp=sharing))
+## Data Processing ([Colab Notebook](https://colab.research.google.com/drive/1TZ6lfKbDVObNq3uiBm-0mf_z1wlj8ryf?usp=sharing))
 
 In order to trian a Panoptic Segmentation model using Detectron2, I needed to use the `register_coco_panoptic_separated` function to register the dataset. This method expects the following data.
 
