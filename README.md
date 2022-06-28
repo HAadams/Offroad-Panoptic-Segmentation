@@ -46,7 +46,7 @@ register_coco_panoptic_separated(
 
 ```
 
-## Model Training ([Colab notebook](https://colab.research.google.com/drive/1tLUc4BVLRJPHlaa88c38XznxUrzY6ahq?usp=sharing))
+## Model Training ([Colab notebook](https://colab.research.google.com/drive/16IrjUv5Gn2RinPO1jGe33s6N-EHMeEgb?usp=sharing))
 
 
 Here are the parameters used in the example link above. Make sure to change them to match your own needs. For example, the parameters below use 25 as the number of classes.
