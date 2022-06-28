@@ -65,7 +65,7 @@ def generate_panoptic_image(args) -> tuple:
         bbox = [int(x), int(y), int(width), int(height)]
 
         segments_info.append({
-            "id": index,
+            "id": int(seg_id),
             "category_id": int(label_id),
             "area": area,
             "bbox": bbox,
