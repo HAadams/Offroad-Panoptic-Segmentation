@@ -56,33 +56,5 @@ Here are the parameters used in the example link above. Make sure to change them
 Detectron2 appends `_separated`  to your dataset name registered through register_coco_panoptic_separated. So, make sure to add it like the example below.
 ---
 
-```python
-cfg = get_cfg()
-# cfg.MODEL.DEVICE='cpu' # Use CPU for debugging
-cfg.merge_from_file(model_zoo.get_config_file("COCO-PanopticSegmentation/panoptic_fpn_R_50_1x.yaml"))
-cfg.DATASETS.TRAIN = ("RUGD_train_separated",) # detectron2 adds _separated to the  dataset name
-cfg.DATASETS.TEST = (("RUGD_test_separated",))
-cfg.DATALOADER.NUM_WORKERS = 2  # number of processes to load data
-cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-PanopticSegmentation/panoptic_fpn_R_50_1x.yaml")  # Let training initialize from model zoo for fine tuning
-cfg.SOLVER.IMS_PER_BATCH = 4  # batch size, num of images trained at the same time
-cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
-cfg.SOLVER.MAX_ITER = 30000
-cfg.SOLVER.STEPS = []        # do not decay learning rate
-cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128   # faster, (default: 512)
-cfg.MODEL.ROI_HEADS.NUM_CLASSES = 25    # Number of Classes/Labels
-cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = 25 # Number of Classes/Labels
-
-os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-trainer = DefaultTrainer(cfg) 
-trainer.resume_or_load(resume=False)
-trainer.train()
-```
-
-## To Install All Necessary Dependencies:
-1. Run command `python -m venv .venv` to create a virtual environment
-2. Run command `./.venv/Scripts/Activate.ps1` to activate the environment
-3. Install packages with: `pip install -r ./requirements.txt`
-
-### TODO:
-  - Add code to run evaluation using the panoptic quality metric.
+# TODO: HUSSEIN update the readme with new info about label ids requirements, processing the dataset, training the model, and evaluation.
 
