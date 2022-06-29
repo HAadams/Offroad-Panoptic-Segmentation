@@ -61,3 +61,12 @@ def get_color2labels(is_rugd: bool = True) -> Dict[tuple, Label]:
 
 def get_id2labels(is_rugd: bool = True) -> Dict[int, Label]:
     return { label.id: label for label in get_labels(is_rugd) }
+
+
+def get_conflict_colormap() -> Dict[tuple, tuple]:
+    conflict_colormap = {}
+    for rugd_label, rellis_label in zip(get_labels(is_rugd=True), get_labels(is_rugd=False)):
+        if rugd_label.color != rellis_label.color:
+            conflict_colormap[rugd_label.color] = rellis_label.color
+
+    return conflict_colormap
