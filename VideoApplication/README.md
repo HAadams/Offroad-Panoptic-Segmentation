@@ -8,7 +8,7 @@ If running with an untrained baseline Detectron2 panoptic segmentation model, th
 
 ![configformat1](images/configformat1.png)
 
-If running with a fine-tuned baseline Detectron2 panoptic segmentation model, then the values a shown below should be specified.
+If running with a fine-tuned baseline Detectron2 panoptic segmentation model, then the values as shown below should be specified.
 
 ![configformat2](images/configformat2.png)
 
