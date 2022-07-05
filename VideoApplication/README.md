@@ -14,3 +14,9 @@ If running with a fine-tuned baseline Detectron2 panoptic segmentation model, th
 
 ## Outputs
 In the specified folder_name, the "inVideoFrames" folder will contain the image frames of the specified video, the "outVideoFrames" folder will contain the image frames with the panoptic segmentation model's inference. The specified folder_name will contain the psVideo.avi video file (compiled outVideoFrames images).
+
+## Demo workflow
+PanopticSegmentationVideo.ipynb is the notebook demo that uses this script to create panoptic segmentation videos.
+
+## Sample Runs
+SampleRun1 folder contains output panoptic segmentation videos of the script running on the short sample video file with untrained fpn_R_50_1x Detectron2 model (config1.json) and a fine-tuned fpn_R_50_1x Detectron2 model (config2.json). The fine-tuned weights files used is from 8000 training iterations on the RUGD training set.

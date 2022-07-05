@@ -1,0 +1,1 @@
+{"use_fine_tuned_model": false, "video_file": "/content/drive/MyDrive/Colab Notebooks/CMPE295A/ApplicationFinal/sampleTrailvid.mp4", "detectron2_ps_model": "COCO-PanopticSegmentation/panoptic_fpn_R_50_1x.yaml", "fine_tuned_weights_file": null, "training_dataset": null, "confidence_val": 0.7, "folder_name": "./Output1"}
