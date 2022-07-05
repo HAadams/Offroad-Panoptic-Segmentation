@@ -6,11 +6,11 @@ The single argument passed to the script is the config.json file.
 
 If running with an untrained baseline Detectron2 panoptic segmentation model, then the values as shown below should be specified.
 
-![configFormat1](images/configFormat1.png)
+![configformat1](images/configformat1.png)
 
 If running with a fine-tuned baseline Detectron2 panoptic segmentation model, then the values a shown below should be specified.
 
-![configFormat2](images/configFormat2.png)
+![configformat2](images/configformat2.png)
 
 ## Outputs
 In the specified folder_name, the "inVideoFrames" folder will contain the image frames of the specified video, the "outVideoFrames" folder will contain the image frames with the panoptic segmentation model's inference. The specified folder_name will contain the psVideo.avi video file (compiled outVideoFrames images).
