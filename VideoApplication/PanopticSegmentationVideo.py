@@ -24,6 +24,8 @@ import json
 
 class PSVideoApp:
   def __init__(self):
+    print("Reading the config.json file...")
+
     #read the input config.json file
     inputJSONFile = sys.argv[1]
     inputJSON = open(inputJSONFile)
@@ -39,7 +41,11 @@ class PSVideoApp:
     self.confidenceVal = configDict["confidence_val"]
     self.folderName = configDict["folder_name"]
 
+    print("Finished reading the config.json file.")
+
   def makeOutputFolder(self):
+    print("Making the specified output folders in 'folder_name'...")
+
     folderName = self.folderName
     inputFramesFolder = os.path.join(folderName, "inVideoFrames")
     outputFramesFolder = os.path.join(folderName, "outVideoFrames")
@@ -49,8 +55,12 @@ class PSVideoApp:
 
     if not os.path.exists(outputFramesFolder):
       os.makedirs(outputFramesFolder)
+
+    print("Finished making the output folders.")
   
   def videoToFrames(self):
+    print("Converting video to input frames in 'folder_name'/inVideoFrames...")
+
     videoFile = self.videoFile
     folderName = self.folderName
 
@@ -69,8 +79,12 @@ class PSVideoApp:
     
     cap.release()
     cv2.destroyAllWindows()
+
+    print("Finished converting video to input frames.")
   
   def updateMetadata(self, panopticDatasetName: str, categoriesJSON: str):
+    print("Updating metadata for fine-tuned model...")
+
     #This will auto-set the things and things_dataset_id_to_contiguous_id in metadata
     datasetCatalog = DatasetCatalog.get(panopticDatasetName)
 
@@ -90,9 +104,13 @@ class PSVideoApp:
 
     metaData = MetadataCatalog.get(panopticDatasetName)
 
+    print("Finished updating metadata.")
+
     return metaData, numStuffClasses, numThingClasses
 
   def inferenceOnFrames(self):
+    print("Doing panoptic segmentation inference on input frames and storing in 'folder_name'/outVideoFrames...")
+
     folderName = self.folderName
     inputFramesFolder = os.path.join(folderName, "inVideoFrames")
     outputFramesFolder = os.path.join(folderName, "outVideoFrames")
@@ -141,7 +159,11 @@ class PSVideoApp:
         
       cv2.imwrite(outImageFullPath, out.get_image()[:, :, ::-1])
 
+    print("Finished doing inference.")
+
   def makeVideo(self):
+    print("Compiling the video...")
+
     folderName = self.folderName
     outputFramesFolder = os.path.join(folderName, "outVideoFrames")
     videoName = os.path.join(folderName, "psVideo.avi")
@@ -161,6 +183,8 @@ class PSVideoApp:
     cv2.destroyAllWindows()
     video.release()
 
+    print("Finished making the video.")
+
 def main():
   if len(sys.argv) != 2:
     print("Please run command with 1 arguments after the script name: config.json")
@@ -171,6 +195,8 @@ def main():
   psVideoApp.videoToFrames()
   psVideoApp.inferenceOnFrames()
   psVideoApp.makeVideo()
+
+  print("Done. Look in 'folder_name' for the constructed panoptic segmentation video.")
 
 if __name__ == "__main__":
     main()
