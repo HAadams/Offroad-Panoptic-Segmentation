@@ -20,3 +20,5 @@ PanopticSegmentationVideo.ipynb is the notebook demo that uses this script to cr
 
 ## Sample Runs
 SampleRun1 folder contains output panoptic segmentation videos of the script running on the short sample video file with untrained fpn_R_50_1x Detectron2 model (config1.json) and a fine-tuned fpn_R_50_1x Detectron2 model (config2.json). The fine-tuned weights files used is from 8000 training iterations on the RUGD training set.
+
+SampleRun2 folder contaisn output panoptic segmentation videos of the script running on a short sample video of a yosemite trail with a fine-tuned fpn_R_101_3x Detectron2 model (config2.json). The fine-tuned weights files used is from 8000 training iterations on the Combined (RUGD and RELLIS-3D) training set. Side by side video is also shown.
