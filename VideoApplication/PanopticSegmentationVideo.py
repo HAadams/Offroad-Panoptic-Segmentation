@@ -81,7 +81,7 @@ class PSVideoApp:
     cap.release()
     cv2.destroyAllWindows()
 
-    print("Finished converting video to input frames. Total frames: " + i)
+    print("Finished converting video to input frames. Total frames: " + str(i))
   
   def updateMetadata(self, panopticDatasetName: str, categoriesJSON: str):
     print("Updating metadata for fine-tuned model...")
@@ -170,7 +170,7 @@ class PSVideoApp:
         newTime = time.time()
         elapsedTime = newTime - tracker
         tracker = time.time()
-        print("It took this many seconds to process 1000 frames: " + elapsedTime)
+        print("It took this many seconds to process 1000 frames: " + str(elapsedTime))
 
     print("Finished doing inference.")
 
