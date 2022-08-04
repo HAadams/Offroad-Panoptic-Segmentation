@@ -14,6 +14,7 @@ from detectron2.utils.logger import setup_logger
 setup_logger()
 
 # other imports
+import time
 import numpy as np
 import random
 import os
@@ -80,7 +81,7 @@ class PSVideoApp:
     cap.release()
     cv2.destroyAllWindows()
 
-    print("Finished converting video to input frames.")
+    print("Finished converting video to input frames. Total frames: " + i)
   
   def updateMetadata(self, panopticDatasetName: str, categoriesJSON: str):
     print("Updating metadata for fine-tuned model...")
@@ -148,6 +149,9 @@ class PSVideoApp:
 
     predictor = DefaultPredictor(cfg)
 
+    tracker = time.time()
+
+    i = 0
     for image in sortedImages:
       inImageFullPath = os.path.join(folderName, "inVideoFrames", image)
       outImageFullPath = os.path.join(folderName, "outVideoFrames", image)
@@ -158,6 +162,15 @@ class PSVideoApp:
       out = v.draw_panoptic_seg_predictions(panoptic_seg.to("cpu"), segments_info)
         
       cv2.imwrite(outImageFullPath, out.get_image()[:, :, ::-1])
+
+      i = i + 1
+
+      if(i == 1000):
+        i = 0
+        newTime = time.time()
+        elapsedTime = newTime - tracker
+        tracker = time.time()
+        print("It took this many seconds to process 1000 frames: " + elapsedTime)
 
     print("Finished doing inference.")
 
