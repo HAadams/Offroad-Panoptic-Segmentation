@@ -87,7 +87,7 @@ cfg.SOLVER.MAX_ITER = 2000
 # when generating semantic images using panopticapi, use the --things_other argument
 # it tells the converter script to set all things to 183 because they 
 # are ignored in semantic training and evaluation
-# and we tell the model here to ignore pixels with value 183
+# and we tell the semantic segmentation head to ignore pixels in semantic images with value 183
 cfg.MODEL.SEM_SEG_HEAD.IGNORE_VALUE = 183 
 
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 4
