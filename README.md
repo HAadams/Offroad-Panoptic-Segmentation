@@ -53,7 +53,11 @@ ID      Category        Type
 7        sign           Thing
 ```
 
-This is because Detectron2 applies a label mapping for the instance/thing data, but not for the semantic/stuff data. This means that the thing classes (IDs 4, 5, 6, 7) will have ID mapping to (0, 1, 2, 3) automatically applied by Detectron2. However, this mapping is not applied to the stuff/semantic categories. The model will use whatever ID we provide it for stuff classes and attempt to access the respective neuron/unit in the semantic head layer. For example, road class with id=1, detectron2 might do something like semantic_head[1]. This makes it important to have the stuff classes to be the first n elements, and then the thing classes should appear after. Having the stuff classes appear first ensures a 0-n IDs which can map directly to the semantic head's layer size. This way, we're able to set the semantic head size directly to 4 and ensure that it doesn't try to access different labels. However, we'll need to set thing classes in the semantic images to some large number and tell the model to ignore it. We'll be doing thing/instance segmentation training in a separate head, so the semantic head can just ignore thing IDs. This ensures that the semantic head will not get a value outside of the 0-n IDs we provide it.
+The reason for having the first n categories be stuff classes is because Detectron2 applies a label mapping for the instance/thing data, but not for the semantic/stuff data. This means that the thing classes (IDs 4, 5, 6, 7) will have ID mapping to (0, 1, 2, 3) automatically applied by Detectron2. The instance (ROI) head of the Panoptic FPN model can then know that the first index belongs to label 4, the second neuron/unit/index belongs to label 5...etc.
+
+However, this mapping is not applied to the stuff/semantic categories. The model will use whatever ID we provide it for stuff classes and attempt to access the respective neuron/unit in the semantic head layer. For example, assuming road class has id=8, detectron2 might do something like semantic_head[8] which is incorrect if you only have 4 stuff classes. This makes it important to have the stuff classes to be the first n elements, and then the thing classes appear after. Having the stuff classes appear first ensures a 0-n IDs which can map directly to the semantic head's layer size AND the stuff classes label IDs. This way, we're able to set the semantic head size directly to 4 and ensure that it doesn't try to access different labels. 
+
+Moreover, we'll need to set thing classes in the semantic images to some large number and tell the model to ignore it. We'll be doing thing/instance segmentation training in a separate head, so the semantic head can just ignore thing IDs. This ensures that the semantic head will not get a value outside of the 0-n IDs we provide it, and it will only have size=n where n=number of stuff classes.
 
 For example, when generating semantic segmentation images, the following script was used
 ```bash
@@ -64,6 +68,31 @@ For example, when generating semantic segmentation images, the following script 
 --categories_json_file RUGD_labels/categories.json \
 --things_other \
 ```
+Note the --things_other keyword. This keyword tells the script to set all thing classes in the semantic image (which are defined in your categories.json file) to some number (183 as of August 5, 2022). The only valid numbers in the semantic images are then just the stuff classes IDs or 183.
+
+Finally, when training the Panoptic FPN model, we have to tell the semantic head to ignore the --things_other label (183) set above. We can also set the ROI head size to the number of instances/things classes, and the semantic head size to the number of stuff classes + 1 (detectron2 ignores pixels with value 0)
+
+```
+cfg = get_cfg()
+cfg.merge_from_file(model_zoo.get_config_file("COCO-PanopticSegmentation/panoptic_fpn_R_50_1x_NO_WEIGHTS.yaml"))
+cfg.DATASETS.TRAIN = (RUGD_train_separated,) 
+cfg.DATASETS.TEST = ((RUGD_test_separated,))
+cfg.DATALOADER.NUM_WORKERS = 2  # number of processes to load data
+cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-PanopticSegmentation/panoptic_fpn_R_50_1x_NO_WEIGHTS.yaml")  # Let training initialize from model zoo for fine tuning
+cfg.SOLVER.IMS_PER_BATCH = 6  # batch size, num of images trained at the same time
+cfg.SOLVER.BASE_LR = 1e-3  # pick a good LR
+cfg.SOLVER.MAX_ITER = 2000
+
+# ignore things classes in semantic head
+# when generating semantic images using panopticapi, use the --things_other argument
+# it tells the converter script to set all things to 183 because they 
+# are ignored in semantic training and evaluation
+# and we tell the model here to ignore pixels with value 183
+cfg.MODEL.SEM_SEG_HEAD.IGNORE_VALUE = 183 
+
+cfg.MODEL.ROI_HEADS.NUM_CLASSES = 4
+cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = 4 # 3 stuff classes + 1 void class
+```
 
 
 This means the ROI (instance) head will have size 4 and the semantic head will have size 4 (3 stuff classes + void class)
@@ -72,7 +101,6 @@ This means the ROI (instance) head will have size 4 and the semantic head will h
 
 
 We found that Detectron2 assigns ID mapping for instances. For example
-
 
 
 
