@@ -1,11 +1,12 @@
 # Panoptic Segmentation Training on Custom Datasets Using Detectron2
 
-This repo contains code for applying Panoptic Segmentation to a custom dataset.
-The specific dataset used in this repo (to build the labels.py file) is RUGD (http://rugd.vision/)
+This repo contains code for applying Panoptic Segmentation to a custom dataset. The datasets used in this repo (to build the labels.py file) are:
+* RUGD (http://rugd.vision/)
+* RELLIS-3D (https://unmannedlab.github.io/research/RELLIS-3D)
 
 ## Dataset Requirements
 The dataset must have images and their annotations in colormap format. See example below.
-![RUGD image & its colormap](https://github.com/HAadams/Offroad-Panoptic-Segmentation/blob/main/images/dataset_example.png)
+![RUGD image & its colormap](images/dataset_example.png)
 
 ---
 **NOTE**
@@ -18,7 +19,7 @@ Change the labels.py file (add your own labels names, and change which labels ar
 
 
 
-## Data Processing ([Colab Notebook](https://colab.research.google.com/drive/1TZ6lfKbDVObNq3uiBm-0mf_z1wlj8ryf?usp=sharing))
+## Data Processing ([Example Colab Notebook](https://colab.research.google.com/drive/1TZ6lfKbDVObNq3uiBm-0mf_z1wlj8ryf?usp=sharing))
 
 In order to trian a Panoptic Segmentation model using Detectron2, I needed to use the `register_coco_panoptic_separated` function to register the dataset. This method expects the following data.
 
@@ -115,7 +116,6 @@ register_coco_panoptic_separated(
 
 ```
 
-## Model Training ([Colab notebook](https://colab.research.google.com/drive/16IrjUv5Gn2RinPO1jGe33s6N-EHMeEgb?usp=sharing))
+## Model Training ([Example Colab Notebook](https://colab.research.google.com/drive/16IrjUv5Gn2RinPO1jGe33s6N-EHMeEgb?usp=sharing))
 
-
-
+For more details about model training and evaluation, go our other Readme [here](PanopticQuality/README.md).
