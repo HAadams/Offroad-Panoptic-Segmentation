@@ -28,6 +28,53 @@ In order to trian a Panoptic Segmentation model using Detectron2, I needed to us
 4. Semantic Segmentation Images Annotaitons (used panopticapi)
 5. Instance Segmentation JSON Annotations (createInstances.py)
 
+## Important Notes
+Some notes about preprocessing the dataset that we needed to perform to get the model to train correctly.
+
+### Labels IDs
+Labels IDs need to be arranged in a way where things and stuff classes are separated clearly.
+For example, if we have the following 4 thing classes, and 3 stuff classes:
+```
+Stuff: road, sky, barrier
+Things: person, car, bike, sign
+```
+We have 7 classes + a void category for a total of 8 categories.
+We found that the label IDs should be layed out as follows
+
+```
+ID      Category        Type
+0        void           Stuff
+1        road           Stuff
+2        sky            Stuff
+3        barrier        Stuff
+4        person         Thing
+5        car            Thing
+6        bike           Thing
+7        sign           Thing
+```
+
+This is because Detectron2 applies a label mapping for the instance/thing data, but not for the semantic/stuff data. This means that the thing classes (IDs 4, 5, 6, 7) will have ID mapping to (0, 1, 2, 3) automatically applied by Detectron2. However, this mapping is not applied to the stuff/semantic categories. The model will use whatever ID we provide it for stuff classes and attempt to access the respective neuron/unit in the semantic head layer. For example, road class with id=1, detectron2 might do something like semantic_head[1]. This makes it important to have the stuff classes to be the first n elements, and then the thing classes should appear after. Having the stuff classes appear first ensures a 0-n IDs which can map directly to the semantic head's layer size. This way, we're able to set the semantic head size directly to 4 and ensure that it doesn't try to access different labels. However, we'll need to set thing classes in the semantic images to some large number and tell the model to ignore it. We'll be doing thing/instance segmentation training in a separate head, so the semantic head can just ignore thing IDs. This ensures that the semantic head will not get a value outside of the 0-n IDs we provide it.
+
+For example, when generating semantic segmentation images, the following script was used
+```bash
+!python panopticapi/converters/panoptic2semantic_segmentation.py \
+--input_json_file RUGD_labels/annotations_val_panoptic.json \
+--segmentations_folder RUGD_labels/val_panoptic/ \
+--semantic_seg_folder RUGD_labels/val_semantic \
+--categories_json_file RUGD_labels/categories.json \
+--things_other \
+```
+
+
+This means the ROI (instance) head will have size 4 and the semantic head will have size 4 (3 stuff classes + void class)
+
+
+
+
+We found that Detectron2 assigns ID mapping for instances. For example
+
+
+
 
 The dataset registeration can simply then be done throug the following code
 
@@ -49,12 +96,4 @@ register_coco_panoptic_separated(
 ## Model Training ([Colab notebook](https://colab.research.google.com/drive/16IrjUv5Gn2RinPO1jGe33s6N-EHMeEgb?usp=sharing))
 
 
-Here are the parameters used in the example link above. Make sure to change them to match your own needs. For example, the parameters below use 25 as the number of classes.
-
----
-**NOTE**
-Detectron2 appends `_separated`  to your dataset name registered through register_coco_panoptic_separated. So, make sure to add it like the example below.
----
-
-# TODO: HUSSEIN update the readme with new info about label ids requirements, processing the dataset, training the model, and evaluation.
 
