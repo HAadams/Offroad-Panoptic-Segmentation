@@ -95,16 +95,10 @@ cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = 4 # 3 stuff classes + 1 void class
 ```
 
 
-This means the ROI (instance) head will have size 4 and the semantic head will have size 4 (3 stuff classes + void class)
 
+### Dataset Registeration
 
-
-
-We found that Detectron2 assigns ID mapping for instances. For example
-
-
-
-The dataset registeration can simply then be done throug the following code
+The dataset registeration can simply be done through the following code. Note that detectron2 adds the _separated suffix to the name of your dataset (i.e. RUGD_train_separated)
 
 ```python
 
